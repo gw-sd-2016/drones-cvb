@@ -39,7 +39,7 @@ bool isRectangleish(Point2f a, Point2f b, Point2f c, Point2f d) {
 	return(a.x < b.x && a.x < c.x && a.y < c.y && a.y < d.y);
 }
 
-int main(int argc, char** argv) {
+int liveSurf(char** argv) {
 
 	Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
 	Mat image;
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 	flip(image, image, 1);
 
 	// Open and check video streams; check image
-	VideoCapture capture(1);
+	VideoCapture capture(0);
 	if(!capture.isOpened()) {
 		cerr << "Unable to open video stream" << endl;
 		exit(EXIT_FAILURE);
