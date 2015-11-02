@@ -1,1 +1,1 @@
-int liveSurf(char* argv);
+int liveSurf();

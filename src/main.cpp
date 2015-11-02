@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv) {
 
-	liveSurf(argv[1]);
+	liveSurf();
 
 	printf("Main program exited.");
 	

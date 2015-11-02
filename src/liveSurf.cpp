@@ -1,3 +1,4 @@
+#include "functions.h"
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
@@ -16,6 +17,7 @@ using namespace cv::xfeatures2d;
 
 int keyboard;
 
+/*
 bool isRectangle(Point2f a, Point2f b, Point2f c, Point2f d) {
 
 	// find the center of mass of corner points
@@ -38,13 +40,14 @@ bool isRectangleish(Point2f a, Point2f b, Point2f c, Point2f d) {
 	
 	return(a.x < b.x && a.x < c.x && a.y < c.y && a.y < d.y);
 }
+*/
 
-int liveSurf(char** argv) {
+int liveSurf() {
 
-	Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
+	//Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
+	Mat origImage = imread("drone-top.jpg", IMREAD_GRAYSCALE);
 	Mat image;
 	Mat scene;
-	int numMatches = 0;
 	bool previousMatch = false;
 
 	transpose(origImage, image);
@@ -71,7 +74,7 @@ int liveSurf(char** argv) {
 	vector<DMatch> matches;
 	vector<KeyPoint> kp_image, kp_scene;
 
-	// computer SURF on image
+	// computer SURF on images
 	detector->detect(image, kp_image);
 	Mat des_image, des_scene;
 	extractor->compute(image, kp_image, des_image);
@@ -175,7 +178,7 @@ int liveSurf(char** argv) {
 			}
 			*/
 
-			if (isRectangleish(a, b, c, d)) { printf("\nMatch, ish\n\n"); }			
+			//if (isRectangleish(a, b, c, d)) { printf("\nMatch, ish\n\n"); }			
 
 			imshow("SURF", img_matches);
 			keyboard = waitKey(25);
