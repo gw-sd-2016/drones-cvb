@@ -1,16 +1,10 @@
 CC=g++
-CLAGS=-ggdb `pkg-config --cflags --libs opencv`
+CFLAGS=-ggdb `pkg-config --cflags --libs opencv`
 
 all: drats
 
-drats: main.o liveSurf.o
-	$(CC) main.o liveSurf.o -o drats
-
-main.o: main.cpp
-	$(CC) $(CLAGS) main.cpp
-
-liveSurf.o: liveSurf.cpp
-	$(CC) $(CFLAGS) liveSurf.cpp
+drats: main.cpp 
+	$(CC) $(CFLAGS) main.cpp -o drats
 
 clean: 
 	rm *o drats

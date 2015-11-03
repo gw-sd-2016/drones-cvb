@@ -1,4 +1,3 @@
-#include "functions.h"
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
@@ -54,7 +53,7 @@ int liveSurf() {
 	flip(image, image, 1);
 
 	// Open and check video streams; check image
-	VideoCapture capture(0);
+	VideoCapture capture(1);
 	if(!capture.isOpened()) {
 		cerr << "Unable to open video stream" << endl;
 		exit(EXIT_FAILURE);
@@ -186,7 +185,5 @@ int liveSurf() {
 
 	}
 	
-	printf("%d total matches\n", numMatches);
-
 	return 0;
 } 
