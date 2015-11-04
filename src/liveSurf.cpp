@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/xfeatures2d.hpp"
@@ -41,7 +42,15 @@ bool isRectangleish(Point2f a, Point2f b, Point2f c, Point2f d) {
 }
 */
 
-int liveSurf() {
+/*
+	Needs to return coordinates of drone
+	Try writing to a text file...
+*/
+int liveSurf(int camera) {
+
+	// make output file based on the number of the camera inputted
+	ofstream outputFile;
+	outputFile.open("output" + to_string(camera) + ".txt");
 
 	//Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
 	Mat origImage = imread("drone-top.jpg", IMREAD_GRAYSCALE);
@@ -53,7 +62,7 @@ int liveSurf() {
 	flip(image, image, 1);
 
 	// Open and check video streams; check image
-	VideoCapture capture(1);
+	VideoCapture capture(camera);
 	if(!capture.isOpened()) {
 		cerr << "Unable to open video stream" << endl;
 		exit(EXIT_FAILURE);
@@ -143,8 +152,6 @@ int liveSurf() {
 			*/
 			img_corners[0] = cvPoint(0, 0);
 			img_corners[1] = cvPoint(image.cols, 0);
-			img_corners[2] = cvPoint(image.cols, image.rows);
-			img_corners[3] = cvPoint(0, image.rows);
 
 			vector<Point2f> scene_corners(4);
 
@@ -178,6 +185,8 @@ int liveSurf() {
 			*/
 
 			//if (isRectangleish(a, b, c, d)) { printf("\nMatch, ish\n\n"); }			
+			// write the coordinates to the output file
+			outputFile << "test line\n";
 
 			imshow("SURF", img_matches);
 			keyboard = waitKey(25);
@@ -185,5 +194,6 @@ int liveSurf() {
 
 	}
 	
+	outputFile.close();
 	return 0;
 } 
