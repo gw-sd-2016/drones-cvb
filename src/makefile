@@ -7,5 +7,5 @@ drats: main.cpp
 	$(CC) $(CFLAGS) main.cpp -o drats
 
 clean: 
-	rm *o drats
+	rm drats
 

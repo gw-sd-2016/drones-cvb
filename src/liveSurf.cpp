@@ -42,6 +42,13 @@ bool isRectangleish(Point2f a, Point2f b, Point2f c, Point2f d) {
 }
 */
 
+Point2f calculateCenter(Point2f a, Point2f b, Point2f c, Point2f d) {
+	int x = (a.x + b.x + c.x + d.x)/4;
+	int y = (a.y + b.y + c.y + d.y)/4;
+
+	return Point2f(x, y);
+}
+
 /*
 	Needs to return coordinates of drone
 	Try writing to a text file...
@@ -57,6 +64,7 @@ int liveSurf(int camera) {
 	Mat image;
 	Mat scene;
 	bool previousMatch = false;
+	bool found = true;
 
 	transpose(origImage, image);
 	flip(image, image, 1);
@@ -152,6 +160,8 @@ int liveSurf(int camera) {
 			*/
 			img_corners[0] = cvPoint(0, 0);
 			img_corners[1] = cvPoint(image.cols, 0);
+			img_corners[2] = cvPoint(image.cols, image.rows);
+			img_corners[3] = cvPoint(0, image.rows);
 
 			vector<Point2f> scene_corners(4);
 
@@ -184,9 +194,15 @@ int liveSurf(int camera) {
 			}
 			*/
 
-			//if (isRectangleish(a, b, c, d)) { printf("\nMatch, ish\n\n"); }			
-			// write the coordinates to the output file
-			outputFile << "test line\n";
+			// drawing a dot at the geometric center and writing it to disk
+			if (found) {
+				// draw a green point at the center of mass
+				// assuming points a-d bind the found area
+				Point2f center = calculateCenter(a, b, c, d);
+				circle(img_matches, center, 10, Scalar(0, 255, 0), -1);
+				string out = "(" + to_string(center.x) + ", " + to_string(center.y) + ")\n";
+				outputFile << out;
+			}
 
 			imshow("SURF", img_matches);
 			keyboard = waitKey(25);
