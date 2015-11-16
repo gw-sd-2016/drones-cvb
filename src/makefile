@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-ggdb `pkg-config --cflags --libs opencv`
+CFLAGS=-std=c++11 -ggdb `pkg-config --cflags --libs opencv`
 
 all: drats
 

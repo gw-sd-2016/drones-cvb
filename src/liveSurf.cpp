@@ -1,3 +1,8 @@
+/*
+	Christoph von Braun
+	liveSurf.cpp
+*/
+
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
@@ -18,30 +23,17 @@ using namespace cv::xfeatures2d;
 int keyboard;
 
 /*
-bool isRectangle(Point2f a, Point2f b, Point2f c, Point2f d) {
-
-	// find the center of mass of corner points
-	// test if square of distances from center mass to all corners are equal
-	float cx, cy;
-	float dd1, dd2, dd3, dd4;
-	
-	cx = (a.x + b.x + c.x + d.x)/4;
-	cy = (a.y + b.y + c.y + d.y)/4;
-
-	dd1 = sqrt(cx - a.x) + sqrt(cy - a.y);
-	dd2 = sqrt(cx - b.x) + sqrt(cy - b.y);
-	dd3 = sqrt(cx - c.x) + sqrt(cy - c.y);
-	dd4 = sqrt(cx - d.x) + sqrt(cy - d.y);
-
-	return(dd1 == dd2 && dd1 == dd3 && dd1 == dd4);
-}
-
+	Calculates if four given points resemble rectangle.
+	Not backwards, severerly elongated, etc...
+*/
 bool isRectangleish(Point2f a, Point2f b, Point2f c, Point2f d) {
 	
 	return(a.x < b.x && a.x < c.x && a.y < c.y && a.y < d.y);
 }
-*/
 
+/*
+	Calculates the average center coordinate given four points
+*/
 Point2f calculateCenter(Point2f a, Point2f b, Point2f c, Point2f d) {
 	int x = (a.x + b.x + c.x + d.x)/4;
 	int y = (a.y + b.y + c.y + d.y)/4;
@@ -60,7 +52,7 @@ int liveSurf(int camera) {
 	outputFile.open("output" + to_string(camera) + ".txt");
 
 	//Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
-	Mat origImage = imread("drone-top.jpg", IMREAD_GRAYSCALE);
+	Mat origImage = imread("pattern.jpg", IMREAD_GRAYSCALE);
 	Mat image;
 	Mat scene;
 	bool previousMatch = false;
@@ -90,24 +82,29 @@ int liveSurf(int camera) {
 	vector<DMatch> matches;
 	vector<KeyPoint> kp_image, kp_scene;
 
-	// computer SURF on images
+	// compute SURF on images
 	detector->detect(image, kp_image);
 	Mat des_image, des_scene;
 	extractor->compute(image, kp_image, des_image);
 
+	// loop until quit command
 	while ((char)keyboard != 'q') {
 
+		// make sure camera is readable
 		if (!capture.read(scene)) {
 			cerr << "Unable to read next frame" << endl;
 			exit(EXIT_FAILURE);
 		}
 
+		// compute SURF on frame
 		detector->detect(scene, kp_scene);
 		extractor->compute(scene, kp_scene, des_scene);
 
 		if (!des_scene.empty()) {
+			// matcher on frame
 			matcher.match(des_image, des_scene, matches);
 
+			// calculate distances
 			double max_dist = 0; double min_dist = 100;
 
 			for (int i = 0; i < des_image.rows; i++) {
@@ -116,6 +113,7 @@ int liveSurf(int camera) {
 				if (dist > max_dist) max_dist = dist;
 			}
 
+			// determine good matches
 			vector<DMatch> good_matches;
 
 			for (int i = 0; i < des_image.rows; i++) {
@@ -124,6 +122,7 @@ int liveSurf(int camera) {
 				}
 			}
 
+			// some magic
 			Mat img_matches;
 			drawMatches(image, kp_image, scene, kp_scene, good_matches, img_matches, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
@@ -132,32 +131,18 @@ int liveSurf(int camera) {
 
 			for (int i = 0; i < good_matches.size(); i++) {
 				image_vector.push_back(kp_image[good_matches[i].queryIdx].pt);	
-				//image_vector.push_back(kp_image[good_matches[i].trainIdx].pt);
-				//scene_vector.push_back(kp_scene[good_matches[i].queryIdx].pt);
 				scene_vector.push_back(kp_scene[good_matches[i].trainIdx].pt);
 			}
 
+			// some more magic
 			Mat H = findHomography(image_vector, scene_vector, CV_RANSAC);
-
+			
 			int hRows = H.rows;
 			int HCols = H.cols;
 			Size s = H.size();
-			printf("Rows: %d, Cols: %d\n", s.height, s.width);
-
-			/*
-			0, 0
-			cols, 0
-			cols, rows
-			0, rows
-			*/
 
 			vector<Point2f> img_corners(4);
-			/*
-			img_corners[0] = cvPoint((image.cols/3), (image.rows/3));
-			img_corners[1] = cvPoint((2*image.cols/3), (image.rows/3));
-			img_corners[2] = cvPoint((2*image.cols/3), (2*image.rows/3));
-			img_corners[3] = cvPoint((image.cols/3), (2*image.rows/3));
-			*/
+
 			img_corners[0] = cvPoint(0, 0);
 			img_corners[1] = cvPoint(image.cols, 0);
 			img_corners[2] = cvPoint(image.cols, image.rows);
@@ -171,35 +156,24 @@ int liveSurf(int camera) {
 				perspectiveTransform(img_corners, scene_corners, H);
 			}
 
+			// drawing out the green box
 			line(img_matches, scene_corners[0] + Point2f(image.cols, 0), scene_corners[1] + Point2f(image.cols, 0), Scalar(0, 255, 0), 4);
 			line(img_matches, scene_corners[1] + Point2f(image.cols, 0), scene_corners[2] + Point2f(image.cols, 0), Scalar(0, 255, 0), 4);
 			line(img_matches, scene_corners[2] + Point2f(image.cols, 0), scene_corners[3] + Point2f(image.cols, 0), Scalar(0, 255, 0), 4);
 			line(img_matches, scene_corners[3] + Point2f(image.cols, 0), scene_corners[0] + Point2f(image.cols, 0), Scalar(0, 255, 0), 4);
 
+			// Points a - d are the corners of the box
 			Point2f a = scene_corners[0] + Point2f(image.cols, 0);
 			Point2f b = scene_corners[1] + Point2f(image.cols, 0);
 			Point2f c = scene_corners[2] + Point2f(image.cols, 0);
 			Point2f d = scene_corners[3] + Point2f(image.cols, 0);
 
-			/*
-			if (isRectangle(a, b, c, d) && previousMatch) {
-				printf("Match, baby!");
-				numMatches++;
-			}
-			else if (isRectangle(a, b, c, d)) {
-				previousMatch = true;
-			}
-			else {
-				previousMatch = false;
-			}
-			*/
-
-			// drawing a dot at the geometric center and writing it to disk
-			if (found) {
-				// draw a green point at the center of mass
-				// assuming points a-d bind the found area
+			// check that points mildly resemble a box
+			if (isRectangleish(a, b, c, d)) {
+				// draw a green point at the center of coodinates
 				Point2f center = calculateCenter(a, b, c, d);
 				circle(img_matches, center, 10, Scalar(0, 255, 0), -1);
+				// write coordinates out to file; these are assumed to be found coordinates
 				string out = "(" + to_string(center.x) + ", " + to_string(center.y) + ")\n";
 				outputFile << out;
 			}
