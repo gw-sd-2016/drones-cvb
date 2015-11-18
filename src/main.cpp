@@ -1,4 +1,5 @@
 #include "liveSurf.cpp"
+#include "processCoordinates.cpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -17,7 +18,7 @@ int main(int argc, char** argv) {
 		cout << "Error: " << e.what() << endl;
 	}
 
-
+	processCoordinates(numCameras-1);
 	liveSurf(numCameras-1);
 
 	/*
