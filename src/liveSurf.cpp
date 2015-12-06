@@ -174,7 +174,7 @@ int liveSurf(int camera) {
 				Point2f center = calculateCenter(a, b, c, d);
 				circle(img_matches, center, 10, Scalar(0, 255, 0), -1);
 				// write coordinates out to file; these are assumed to be found coordinates
-				string out = "(" + to_string(center.x) + ", " + to_string(center.y) + ")\n";
+				string out = to_string(center.x) + "," + to_string(center.y) + "\n";
 				outputFile << out;
 			}
 

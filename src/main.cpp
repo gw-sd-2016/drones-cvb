@@ -18,8 +18,28 @@ int main(int argc, char** argv) {
 		cout << "Error: " << e.what() << endl;
 	}
 
-	processCoordinates(numCameras-1);
-	liveSurf(numCameras-1);
+	// prompt user for camera positions
+	int i, j;
+	cout << "Prototype for camera positions\n";
+	cout << "This assumes four cameras in a rectangle\n";
+	cout << "Please enter the length of the positions: ";
+	cin >> i;
+	cout << "Please enter the width of the positions: ";
+	cin >> j;
+	cout << "Camera coordinates are " << i << " and " << j << ".\n";
+
+
+	/*
+		Runs SURF on inputted camera. Output text file will be filled.
+		Process coordinates within text file
+	*/
+
+	// for testing purposes, nice to be able to not run SURF if desired
+	if (numCameras != 0) {
+		liveSurf(numCameras-1);
+		processCoordinates(numCameras-1);
+	}
+
 
 	/*
 	// if there are x cameras, the range of ints should be from [0, x]
