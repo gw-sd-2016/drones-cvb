@@ -22,7 +22,10 @@ Point2f stringtoPoint(string line) {
 int processCoordinates(int camera) {
 
 	ifstream outputFile;
-	outputFile.open("output" + to_string(camera) + ".txt", ios::ate);
+	string line;
+	string out = "output" + to_string(camera) + ".txt";
+	cout << "Opening " << out << "\n";
+	outputFile.open(out, ios::ate);
 
 	// length of file stored to variable
 	int length = outputFile.tellg();	
@@ -31,10 +34,14 @@ int processCoordinates(int camera) {
 	Point2f *points = new Point2f[length];
 
 	if (outputFile.is_open()) {
-		
+		cout << "here";
+		while(getline(outputFile, line)) {
+			cout << line << "\n";
+			cout << "there";
+		}
 	}
 
-	printf("Creating array of Point2fs\n");
+	outputFile.close();
 
 	delete [] points;
 	return 0;

@@ -175,6 +175,7 @@ int liveSurf(int camera) {
 				circle(img_matches, center, 10, Scalar(0, 255, 0), -1);
 				// write coordinates out to file; these are assumed to be found coordinates
 				string out = to_string(center.x) + "," + to_string(center.y) + "\n";
+				cout << "Writing to " << out;
 				outputFile << out;
 			}
 
