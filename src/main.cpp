@@ -34,10 +34,12 @@ int main(int argc, char** argv) {
 		Process coordinates within text file
 	*/
 
+	cleanCoordinates(numCameras);
+
 	// for testing purposes, nice to be able to not run SURF if desired
 	if (numCameras != 0) {
 		liveSurf(numCameras-1);
-		processCoordinates(numCameras-1);
+		//processCoordinates(numCameras-1);
 	}
 
 

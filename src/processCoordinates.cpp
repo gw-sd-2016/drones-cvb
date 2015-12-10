@@ -19,31 +19,34 @@ Point2f stringtoPoint(string line) {
 
 }
 
-int processCoordinates(int camera) {
-
+void cleanCoordinates(int camera) {
 	ifstream outputFile;
 	string line;
 	string out = "output" + to_string(camera) + ".txt";
 	cout << "Opening " << out << "\n";
-	outputFile.open(out, ios::ate);
+	outputFile.open(out);
 
-	// length of file stored to variable
-	int length = outputFile.tellg();	
-	
-	// array of Point2fs of size file length
+	int length = outputFile.tellg();
 	Point2f *points = new Point2f[length];
+	string delimiter1 = ".";
+	string delimiter2 = ",";
+	size_t pos = 0;
+	string token;
 
 	if (outputFile.is_open()) {
-		cout << "here";
-		while(getline(outputFile, line)) {
+		cout << "Reading contents of file \n";
+		while(!outputFile.eof()) {
+			getline(outputFile, line);
 			cout << line << "\n";
-			cout << "there";
+			// first delimiting
+			while ((pos = line.find(delimiter1)) != string::npos) {
+				token = line.substr(0, pos);
+				cout << token << endl;
+				line.erase(0, pos + delimiter1.length());
+			}
 		}
 	}
 
 	outputFile.close();
-
-	delete [] points;
-	return 0;
 
 }
