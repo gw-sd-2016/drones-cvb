@@ -27,26 +27,44 @@ void cleanCoordinates(int camera) {
 	outputFile.open(out);
 
 	int length = outputFile.tellg();
-	Point2f *points = new Point2f[length];
+	vector<Point2f> points;
 	string delimiter1 = ".";
 	string delimiter2 = ",";
 	size_t pos = 0;
 	string token;
+	int tempX, tempY;
+	int currentIndex = 0;
 
 	if (outputFile.is_open()) {
 		cout << "Reading contents of file \n";
 		while(!outputFile.eof()) {
 			getline(outputFile, line);
-			cout << line << "\n";
 			// first delimiting
 			while ((pos = line.find(delimiter1)) != string::npos) {
 				token = line.substr(0, pos);
 				cout << token << endl;
+				tempX = atoi(token.c_str());			// saves token in tempX
 				line.erase(0, pos + delimiter1.length());
+				// second delimiting
+				while ((pos = line.find(delimiter2)) != string:: npos) {
+					if (line.substr(0, 1) != "0") {	// second time only, avoids zeros
+						token = line.substr(0, pos);
+						cout << token << endl;
+						tempY = atoi(token.c_str());	// saves token in tempY
+					}
+					line.erase(0, pos + delimiter2.length());
+				}
 			}
+
+			points.push_back(Point2f(tempX, tempY));
+			currentIndex++;
+
 		}
 	}
 
 	outputFile.close();
+
+	cout << "Printing the array" << endl;
+
 
 }
