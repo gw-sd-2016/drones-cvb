@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 
@@ -35,16 +36,19 @@ void cleanCoordinates(int camera) {
 	string token;
 	int tempX, tempY;
 
+	/*
+		Delimits input file of coordinates into array of points
+	*/
 	if (outputFile.is_open()) {
 		cout << "Reading contents of file \n";
 		while(!outputFile.eof()) {
 			getline(outputFile, line);
 			// first delimiting
-			if ((pos = line.find(delimiter1)) != string::npos) {	// if 1st delimiter found in line
-				token = line.substr(0, pos);						// set token to first text until delimiter
-				cout << "first: " << token << endl;					// debugging print line
-				tempX = atoi(token.c_str());						// saves token in tempX
-				line.erase(0, pos + delimiter1.length());			// erases section up through delimiter
+			if ((pos = line.find(delimiter1)) != string::npos) {														// if 1st delimiter found in line
+				token = line.substr(0, pos);																			// set token to first text until delimiter
+				cout << "first: " << token << endl;																		// debugging print line
+				tempX = atoi(token.c_str());																			// saves token in tempX
+				line.erase(0, pos + delimiter1.length());																// erases section up through delimiter
 			}
 
 			// second delimiting
@@ -64,6 +68,39 @@ void cleanCoordinates(int camera) {
 	cout << "Printing the vector" << endl;
 	for (int i = 0; i < points.size(); ++i) {
 		cout << points[i].x << ", " << points[i].y << endl;
+	}
+
+	/*
+		Begin the cleaning up portion
+
+		Preliminary idea is for every coordinate, look at the next and the previous coordinates. If the examined one is outside of some distance of **each or average** 
+		of the other two, mark it for deletion. Will disregard first and last coordinates because they don't have previous or next respectively.
+	*/
+
+	int distanceVar = 10;							// distance variable; this will be played with
+	Point2f prev, next, average;					// previous, next, average points
+	vector<int> markers;
+	for (int i = 0; i < points.size(); ++i) {		// for every point in vector
+		if ((i > 0) && (i < points.size() - 1)) {	// between 0 and 2nd to last in points
+			prev = points[i - 1];					// set the previous point
+			next = points[i + 1];					// set the next point
+
+			// try average first
+			average = Point2f((prev.x + next.x)/2, (prev.y + next.y)/2);		// average of individual x and y coordinates from prev and next
+
+			if ((abs(points[i].x - average.x) > distanceVar) && (abs(points[i].y - average.y) > distanceVar)) {
+				markers.push_back(1);						// mark point for deletion
+			}
+			else {
+				markers.push_back(0);						// mark point as safe
+			}
+		}
+		else { markers.push_back(2); }
+	}
+
+	cout << "Printing the markers" << endl;
+	for (int i = 0; i < markers.size(); ++i) {
+		cout << markers[i] << endl;
 	}
 
 }
