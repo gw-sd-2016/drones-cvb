@@ -78,6 +78,7 @@ void cleanCoordinates(int camera) {
 	*/
 
 	int distanceVar = 10;							// distance variable; this will be played with
+	
 	Point2f prev, next, average;					// previous, next, average points
 	vector<int> markers;
 	for (int i = 0; i < points.size(); ++i) {		// for every point in vector
@@ -87,15 +88,20 @@ void cleanCoordinates(int camera) {
 
 			// try average first
 			average = Point2f((prev.x + next.x)/2, (prev.y + next.y)/2);		// average of individual x and y coordinates from prev and next
-
-			if ((abs(points[i].x - average.x) > distanceVar) && (abs(points[i].y - average.y) > distanceVar)) {
+			cout << "average: " << average.x << ", " << average.y << endl;
+			cout << "abs: " << abs(points[i].x - average.x) << ", " << abs(points[i].y - average.y) << endl;
+			if ((abs(points[i].x - average.x) > distanceVar) || (abs(points[i].y - average.y) > distanceVar)) {
 				markers.push_back(1);						// mark point for deletion
+				cout << "marking the point for deletion... " << endl;
 			}
 			else {
 				markers.push_back(0);						// mark point as safe
+				cout << "marking the point to save... " << endl;
 			}
 		}
-		else { markers.push_back(2); }
+		else { markers.push_back(2); }						// A 2 indicates the point has been ignored.
+
+		cout << "\n" << endl;
 	}
 
 	cout << "Printing the markers" << endl;
