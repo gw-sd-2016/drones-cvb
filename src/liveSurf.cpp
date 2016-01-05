@@ -178,6 +178,11 @@ int liveSurf(int camera) {
 				cout << "Writing to " << out;
 				outputFile << out;
 			}
+			// otherwise write -1 to file for no coordinates found
+			else {
+				string out = to_string(-1) + "," + to_string(-1) + "\n";
+				outputFile << out;
+			}
 
 			imshow("SURF", img_matches);
 			keyboard = waitKey(25);
