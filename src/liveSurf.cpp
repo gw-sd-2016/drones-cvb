@@ -49,7 +49,7 @@ int liveSurf(int camera) {
 
 	// make output file based on the number of the camera inputted
 	ofstream outputFile;
-	outputFile.open("output" + to_string(camera) + ".txt");
+	outputFile.open("camera" + to_string(camera) + ".txt");
 
 	//Mat origImage = imread(argv[1], IMREAD_GRAYSCALE);
 	Mat origImage = imread("pattern.jpg", IMREAD_GRAYSCALE);

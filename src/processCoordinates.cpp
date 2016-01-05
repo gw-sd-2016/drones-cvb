@@ -20,10 +20,10 @@ Point2f stringtoPoint(string line) {
 
 }
 
-void cleanCoordinates(int camera) {
+vector<Point2f> cleanCoordinates(int camera) {
 	ifstream outputFile;
 	string line;
-	string out = "output" + to_string(camera) + ".txt";
+	string out = "camera" + to_string(camera) + ".txt";
 	cout << "Opening " << out << "\n";
 	outputFile.open(out);
 
@@ -69,6 +69,8 @@ void cleanCoordinates(int camera) {
 	for (int i = 0; i < points.size(); ++i) {
 		cout << points[i].x << ", " << points[i].y << endl;
 	}
+
+	return points;
 
 	/*
 		Begin the cleaning up portion

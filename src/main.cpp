@@ -1,3 +1,4 @@
+#include "to3D.cpp"
 #include "liveSurf.cpp"
 #include "processCoordinates.cpp"
 #include <stdlib.h>
@@ -34,13 +35,21 @@ int main(int argc, char** argv) {
 		Process coordinates within text file
 	*/
 
-	cleanCoordinates(numCameras);
+	//cleanCoordinates(numCameras);
 
 	// for testing purposes, nice to be able to not run SURF if desired
 	if (numCameras != 0) {
-		liveSurf(numCameras-1);
-		//processCoordinates(numCameras-1);
+		//liveSurf(numCameras-1);
+		//wwprocessCoordinates(numCameras-1);
 	}
+
+	vector<Point2f> cam0, cam1, cam2, cam3;
+	cam0 = processCoordinates(0);
+	cam1 = processCoordinates(1);
+	cam2 = processCoordinates(2);
+	cam3 = processCoordinates(3);
+
+	to3D(cam0, cam1, cam2, cam3);
 
 
 	/*
