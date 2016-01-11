@@ -3,10 +3,12 @@
 	liveSurf.cpp
 */
 
+#include "threadData.h"
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <pthread.h>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/xfeatures2d.hpp"
@@ -45,7 +47,15 @@ Point2f calculateCenter(Point2f a, Point2f b, Point2f c, Point2f d) {
 	Needs to return coordinates of drone
 	Try writing to a text file...
 */
-int liveSurf(int camera) {
+void *liveSurf(void *threadarg) {
+
+	// enables passing argument to thread
+	struct thread_data *my_data;
+	my_data = (struct thread_data *) threadarg;
+
+	// setting the argument
+	int threadID = my_data->thread_id;
+	int camera = my_data->cameraIndex;
 
 	// make output file based on the number of the camera inputted
 	ofstream outputFile;
@@ -191,5 +201,5 @@ int liveSurf(int camera) {
 	}
 	
 	outputFile.close();
-	return 0;
+	pthread_exit(NULL);
 } 

@@ -1,3 +1,4 @@
+//nclude "threadData.h"
 #include "to3D.cpp"
 #include "liveSurf.cpp"
 #include "processCoordinates.cpp"
@@ -37,9 +38,28 @@ int main(int argc, char** argv) {
 
 	//cleanCoordinates(numCameras);
 
+	// handles threading
+	pthread_t threads[numCameras-1];
+	struct thread_data td[numCameras-1];
+	int rc;
+
 	// for testing purposes, nice to be able to not run SURF if desired
 	if (numCameras != 0) {
-		liveSurf(numCameras-1);
+
+		for (int i = 0; i < numCameras-1; i++) {
+			cout << "main() : creating thread, " << i << endl;
+			td[i].thread_id = i;
+			td[i].cameraIndex = i;
+
+			rc = pthread_create(&threads[i], NULL, liveSurf, (void *)&td[i]);
+
+			if (rc) {
+				cout << "Error: unable to create thread," << rc << endl;
+				exit(-1);
+			}
+		}
+
+		//liveSurf(numCameras-1);
 		//processCoordinates(numCameras-1);
 	}
 
@@ -64,6 +84,7 @@ int main(int argc, char** argv) {
 	}
 	*/
 
+	pthread_exit(NULL);
 	printf("Main program exited.\n");
 	
 }
