@@ -3,8 +3,8 @@
 #include "processCoordinates.cpp"
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 #include <iostream>
-#include <thread>
 
 int main(int argc, char** argv) {
 
@@ -39,10 +39,11 @@ int main(int argc, char** argv) {
 
 	// for testing purposes, nice to be able to not run SURF if desired
 	if (numCameras != 0) {
-		//liveSurf(numCameras-1);
-		//wwprocessCoordinates(numCameras-1);
+		liveSurf(numCameras-1);
+		//processCoordinates(numCameras-1);
 	}
 
+	/*
 	vector<Point2f> cam0, cam1, cam2, cam3;
 	cam0 = processCoordinates(0);
 	cam1 = processCoordinates(1);
@@ -50,7 +51,7 @@ int main(int argc, char** argv) {
 	cam3 = processCoordinates(3);
 
 	to3D(cam0, cam1, cam2, cam3);
-
+	*/
 
 	/*
 	// if there are x cameras, the range of ints should be from [0, x]
