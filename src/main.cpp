@@ -1,21 +1,23 @@
-//nclude "threadData.h"
 #include "to3D.cpp"
 #include "liveSurf.cpp"
+#include "colorDetection.cpp"
 #include "processCoordinates.cpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <iostream>
 
+#define NUM_CAMERAS 4
+
 int main(int argc, char** argv) {
 
 	printf("Main program started.\n");
 
 	// check for argv not null and contains integer
-	int numCameras = 999;
+	int cameraIndex = 999;
 	try {
 		if (argv[1] != NULL)
-			numCameras = std::stoi(argv[1]);
+			cameraIndex = std::stoi(argv[1]);
 	} catch(std::exception const & e) {
 		cout << "Error: " << e.what() << endl;
 	}
@@ -29,7 +31,7 @@ int main(int argc, char** argv) {
 	cout << "Please enter the width of the positions: ";
 	cin >> j;
 	cout << "Camera coordinates are " << i << " and " << j << ".\n";
-
+	cout << "Camera index is " << cameraIndex << ".\n";
 
 	/*
 		Runs SURF on inputted camera. Output text file will be filled.
@@ -38,20 +40,17 @@ int main(int argc, char** argv) {
 
 	//cleanCoordinates(numCameras);
 
-	// handles threading
-	pthread_t threads[numCameras-1];
-	struct thread_data td[numCameras-1];
-	int rc;
-
 	// for testing purposes, nice to be able to not run SURF if desired
-	if (numCameras != 0) {
+	if (cameraIndex != 0) {
 
-		for (int i = 0; i < numCameras-1; i++) {
-			cout << "main() : creating thread, " << i << endl;
-			td[i].thread_id = i;
+		pthread_t threads[NUM_CAMERAS];
+		struct thread_data td[NUM_CAMERAS];
+		int rc;
+
+		for (int i = 1; i <= NUM_CAMERAS; i++) {
+			cout << "Creating thread " << i << endl;
 			td[i].cameraIndex = i;
-
-			rc = pthread_create(&threads[i], NULL, liveSurf, (void *)&td[i]);
+			rc = pthread_create(&threads[i], NULL, detectColor, (void *)&td[i]);
 
 			if (rc) {
 				cout << "Error: unable to create thread," << rc << endl;
@@ -59,7 +58,6 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		//liveSurf(numCameras-1);
 		//processCoordinates(numCameras-1);
 	}
 

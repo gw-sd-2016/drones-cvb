@@ -2,7 +2,7 @@
 #define THREAD_HEADER_GUARD
 
 struct thread_data {
-	int thread_id, cameraIndex;
+	int cameraIndex;
 };
 
 #endif
