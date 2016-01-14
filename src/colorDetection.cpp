@@ -21,11 +21,11 @@ using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
 
-int kb;
-
 #define NUM_CAMERAS 4
 
-void calculateColor(Mat bgr_image) {
+int kb;
+
+void calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 
 	Mat hsv_image;
 
@@ -59,7 +59,8 @@ void calculateColor(Mat bgr_image) {
 	}
 
 	// show the result
-	imshow("Color Detection", red_hue_image);
+	//imshow("Color Detection", red_hue_image);
+	outputFiles[cameraIndex-1] << "print " + to_string(cameraIndex) << "\n";
 	
 }
 
@@ -69,18 +70,24 @@ void detectColor() {
 	VideoCapture capture[NUM_CAMERAS];
 	Mat camFrames[NUM_CAMERAS];
 	string labels[NUM_CAMERAS];
+	ofstream outputFiles[NUM_CAMERAS];
 
+	// setup look
 	for (int i = 1; i <= NUM_CAMERAS; i++) {
-		labels[i] = "Camera " + to_string(i);
-		capture[i].open(i);
+		// open the cameras
+		labels[i-1] = "Camera " + to_string(i);
+		capture[i-1].open(i);
+
+		// open the output files
+		outputFiles[i-1].open("camera" + to_string(i) + ".txt");
 	}
 
 	// loop until quit command
 	while ((char)kb != 'q') {
 
 		for (int i = 1; i <= NUM_CAMERAS; i++) {
-			capture[i] >> camFrames[i];
-			calculateColor(camFrames[i]);
+			capture[i-1] >> camFrames[i-1];
+			calculateColor(camFrames[i-1], outputFiles, i);
 		}
 	}
 } 
