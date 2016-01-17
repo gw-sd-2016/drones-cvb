@@ -109,6 +109,9 @@ void to3D(vector<Point2f> cam0, vector<Point2f> cam1, vector<Point2f> cam2, vect
 		// all knowns; this is the hard part
 		if (cam0[i].x != -1 && cam1[i].x != -1 && cam2[i].x != -1 && cam3[i].x != -1) {
 			outputFile << "all cams found\n";
+
+			// camera viewport is 1280 * 960
+			
 		}
 
 

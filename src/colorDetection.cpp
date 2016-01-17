@@ -21,11 +21,16 @@ using namespace cv;
 using namespace std;
 using namespace cv::xfeatures2d;
 
+// hardcoded value of number of cameras to analyze
 #define NUM_CAMERAS 4
 
 int kb;
 
-void calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
+/**
+	Takes in a Matrix as a frame of a camera, and processes it for all instances of red.
+	Records the results in a text file with the coordinates of the instance of red in the frame
+**/
+Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 
 	Mat hsv_image;
 
@@ -55,24 +60,34 @@ void calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 		Point center(round(circles[current_circle][0]), round(circles[current_circle][1]));
 		int radius = round(circles[current_circle][2]);
 
+		// write coordinates to file
 		circle(red_hue_image, center, radius, Scalar(0, 255, 0), 5);
+		//outputFiles[cameraIndex-1] << center.x << "," << center.y << "\n";
+		cout << "Writing " << center.x << ", " << center.y << "to camera" << cameraIndex << ".txt\n";
+		return center;
 	}
 
-	// show the result
-	//imshow("Color Detection", red_hue_image);
-	outputFiles[cameraIndex-1] << "print " + to_string(cameraIndex) << "\n";
-	
+	if (circles.size() == 0) {
+		// write -1 as dud coordinates to file
+		outputFiles[cameraIndex-1] << -1 << "," << -1 << "\n";
+		cout << "Writing -1, -1 to camera" << cameraIndex << ".txt\n";
+		return Point(-1, -1);
+	}
 }
 
+/**
+	Sets up the cameras and output files, then runs color detection
+	on each frame of each camera in succession
+**/
 void detectColor() {
 
-	// initializing video captures
 	VideoCapture capture[NUM_CAMERAS];
 	Mat camFrames[NUM_CAMERAS];
 	string labels[NUM_CAMERAS];
 	ofstream outputFiles[NUM_CAMERAS];
+	Mat processedFrames[NUM_CAMERAS];
 
-	// setup look
+	// setup loop; opens the camera streams and output files
 	for (int i = 1; i <= NUM_CAMERAS; i++) {
 		// open the cameras
 		labels[i-1] = "Camera " + to_string(i);
@@ -82,12 +97,16 @@ void detectColor() {
 		outputFiles[i-1].open("camera" + to_string(i) + ".txt");
 	}
 
+	printf("Setup complete.\n");
+
 	// loop until quit command
 	while ((char)kb != 'q') {
 
+		// runs calculateColor() on each frame of each camera
 		for (int i = 1; i <= NUM_CAMERAS; i++) {
 			capture[i-1] >> camFrames[i-1];
-			calculateColor(camFrames[i-1], outputFiles, i);
+			Point p = calculateColor(camFrames[i-1], outputFiles, i);
+			outputFiles[i-1] << p.x << "," << p.y << "\n";
 		}
 	}
 } 

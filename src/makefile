@@ -1,11 +1,14 @@
 CC=g++
 CFLAGS=-std=c++11 -ggdb `pkg-config --cflags --libs opencv`
 
-all: drats
+all: crats drats
 
-drats: main.cpp 
-	$(CC) $(CFLAGS) main.cpp -o drats
+crats: main.cpp 
+	$(CC) $(CFLAGS) main.cpp -o crats
+
+drats: mainProc.cpp
+	$(CC) $(CFLAGS) mainProc.cpp -o drats
 
 clean: 
-	rm drats
+	rm crats drats
 
