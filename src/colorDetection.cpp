@@ -55,7 +55,7 @@ Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 	HoughCircles(red_hue_image, circles, CV_HOUGH_GRADIENT, 1, red_hue_image.rows/8, 100, 20, 0, 0);
 
 
-	// loop over all detected circles and outline them on the original image
+	// loop over all detected circles and return the center of the first one
 	for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle) {
 		Point center(round(circles[current_circle][0]), round(circles[current_circle][1]));
 		int radius = round(circles[current_circle][2]);
@@ -63,14 +63,12 @@ Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 		// write coordinates to file
 		circle(red_hue_image, center, radius, Scalar(0, 255, 0), 5);
 		//outputFiles[cameraIndex-1] << center.x << "," << center.y << "\n";
-		cout << "Writing " << center.x << ", " << center.y << "to camera" << cameraIndex << ".txt\n";
 		return center;
 	}
 
 	if (circles.size() == 0) {
 		// write -1 as dud coordinates to file
-		outputFiles[cameraIndex-1] << -1 << "," << -1 << "\n";
-		cout << "Writing -1, -1 to camera" << cameraIndex << ".txt\n";
+		//outputFiles[cameraIndex-1] << -1 << "," << -1 << "\n";
 		return Point(-1, -1);
 	}
 }
@@ -94,20 +92,28 @@ void detectColor() {
 		capture[i-1].open(i);
 
 		// open the output files
+		cout << "Opening camera" << to_string(i) << ".txt\n";
 		outputFiles[i-1].open("camera" + to_string(i) + ".txt");
 	}
 
 	printf("Setup complete.\n");
 
-	// loop until quit command
-	while ((char)kb != 'q') {
+	// loops forever; don't want a sleep() here because calculateColor is slow enough
+	// I'm already missing some frames here.
+	while (true) {
 
 		// runs calculateColor() on each frame of each camera
 		for (int i = 1; i <= NUM_CAMERAS; i++) {
 			capture[i-1] >> camFrames[i-1];
 			Point p = calculateColor(camFrames[i-1], outputFiles, i);
-			outputFiles[i-1] << p.x << "," << p.y << "\n";
+			outputFiles[i-1] << p.x << "," << p.y << endl;				// endl also flushes the line out
+			cout << p.x << ", " << p.y << " written to camera" << to_string(i) << ".txt\n";
 		}
+	}
+
+	// closing the output files
+	for (int i = 1; i <= NUM_CAMERAS; i++) {
+		outputFiles[i-1].close();
 	}
 } 
 
