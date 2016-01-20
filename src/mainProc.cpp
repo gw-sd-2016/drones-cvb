@@ -32,28 +32,15 @@ int main(int argc, char** argv) {
 	cam3.open("camera3.txt");
 	cam4.open("camera4.txt");
 
-	// needs to read files while they are still being written to
+	// this code block still under construction
+
+	// Needs to read files while they are still being written to.
+	// this will eventually call something in processCoordinates.cpp and to3D.cpp
+	// for processing, cleaning up and combining the camera data
 	if (cam1.is_open() && cam2.is_open() && cam3.is_open() && cam4.is_open()) {
 
 		printf("Everything is open.\n");
 
-		while (!cam1.eof() && !cam2.eof() && !cam3.eof() && !cam4.eof()) {
-			getline(cam1, line1);
-			cout << "Cam1: " << line1 << "\n";
-			getline(cam2, line2);
-			cout << "Cam2: " << line2 << "\n";
-			getline(cam3, line3);
-			cout << "Cam3: " << line3 << "\n";
-			getline(cam4, line4);
-			cout << "Cam4: " << line4 << "\n";
-			//cam1.clear();
-			//cam2.clear();
-			//cam3.clear();
-			//cam4.clear();
-			sleep(2);
-		}
-
-		/*
 		while (true) {
 			while (getline(cam1, line1)) { cout << "Cam1: " << line1 << "\n"; }
 			while (getline(cam2, line2)) { cout << "Cam2: " << line2 << "\n"; }
@@ -74,7 +61,6 @@ int main(int argc, char** argv) {
 
 			cout << "One round\n";
 		}
-		*/
 
 	}
 

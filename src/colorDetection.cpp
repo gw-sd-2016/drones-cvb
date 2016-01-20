@@ -3,19 +3,11 @@
 	colorDetection.cpp
 */
 
-#include "threadData.h"
+#include "opencv.h"
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
 #include <fstream>
-
-#include "opencv2/core/core.hpp"
-#include "opencv2/xfeatures2d.hpp"
-#include "opencv2/opencv_modules.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/features2d/features2d.hpp"
 
 using namespace cv;
 using namespace std;
@@ -55,7 +47,10 @@ Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 	HoughCircles(red_hue_image, circles, CV_HOUGH_GRADIENT, 1, red_hue_image.rows/8, 100, 20, 0, 0);
 
 
-	// loop over all detected circles and return the center of the first one
+	// loop over all detected circles and return the center of the first one.
+	// Important assumption here: there is only one red area found in the image.
+	// All subsequent red areas will be disregarded. Might implement maximum radius 
+	// calculation in the future.
 	for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle) {
 		Point center(round(circles[current_circle][0]), round(circles[current_circle][1]));
 		int radius = round(circles[current_circle][2]);
@@ -66,11 +61,14 @@ Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 		return center;
 	}
 
+	// if no circles have been detected, write (-1, -1) to signify
 	if (circles.size() == 0) {
-		// write -1 as dud coordinates to file
 		//outputFiles[cameraIndex-1] << -1 << "," << -1 << "\n";
 		return Point(-1, -1);
 	}
+
+	// doesn't get here. just to shut compiler up.
+	return Point(-1, -1);
 }
 
 /**
