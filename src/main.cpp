@@ -6,7 +6,11 @@
 #include "colorDetection.cpp"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /**
 	This program starts the color detection, which is
@@ -15,6 +19,9 @@
 int main(int argc, char** argv) {
 
 	printf("Color detection started.\n");
+
+	// establishes the named pipe
+	int fifo = mkfifo("/tmp/fifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
 	/*
 		Runs color detection on all cameras and saves coordinates

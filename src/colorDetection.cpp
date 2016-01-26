@@ -8,6 +8,9 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
 
 using namespace cv;
 using namespace std;
@@ -83,6 +86,17 @@ void detectColor() {
 	ofstream outputFiles[NUM_CAMERAS];
 	Mat processedFrames[NUM_CAMERAS];
 
+	string strPhrase;
+	char * phrase;
+
+	// opens the pipe
+	// this serves as the writing portion of the pipe
+	int num, fifo;
+	if ((fifo = open("/tmp/fifo", O_WRONLY)) <  0) {
+		printf("%s\n", strerror(errno));
+		return;
+	}
+
 	// setup loop; opens the camera streams and output files
 	for (int i = 1; i <= NUM_CAMERAS; i++) {
 		// open the cameras
@@ -106,6 +120,19 @@ void detectColor() {
 			Point p = calculateColor(camFrames[i-1], outputFiles, i);
 			outputFiles[i-1] << p.x << "," << p.y << endl;				// endl also flushes the line out
 			cout << p.x << ", " << p.y << " written to camera" << to_string(i) << ".txt\n";
+			
+			// string to char* conversion code
+			strPhrase = to_string(p.x) + "," + to_string(p.y);
+			phrase = new char[strPhrase.size() + 1];
+			copy(strPhrase.begin(), strPhrase.end(), phrase);
+			phrase[strPhrase.size()] = '\0';
+
+
+			if ((num = write(fifo, phrase, strlen(phrase) + 1)) < 0) {
+				printf("ERROR: %s\n", strerror(errno));
+			}
+
+			delete[] phrase;
 		}
 	}
 
@@ -113,5 +140,8 @@ void detectColor() {
 	for (int i = 1; i <= NUM_CAMERAS; i++) {
 		outputFiles[i-1].close();
 	}
+
+	// closing the pipe
+	close(fifo);
 } 
 

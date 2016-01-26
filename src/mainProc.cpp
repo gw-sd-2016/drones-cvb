@@ -6,6 +6,9 @@
 #include "to3D.cpp"
 #include "liveSurf.cpp"
 #include "processCoordinates.cpp"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -13,6 +16,9 @@
 
 // hardcoded value of number of cameras to analyze
 #define NUM_CAMERAS 4
+
+// define buffer size for piping
+#define MAX_BUF 1024
 
 /**
 	This program starts the processing of the coordinates that were detected from text files.
@@ -24,6 +30,27 @@ int main(int argc, char** argv) {
 
 	printf("mainProc.cpp started.\n");
 
+	int num, fifo;
+	char temp[38];
+	if ((fifo = open("/tmp/fifo", O_RDONLY)) < 0) {
+		printf("%s\n", strerror(errno));
+		return 0;
+	}
+
+	while (true) {
+
+		if ((num = read(fifo, temp, sizeof(temp))) < 0) {
+			printf("%s\n", strerror(errno));
+		}
+		printf("In FIFO is %d %s \n", num, temp);
+
+	}
+
+	close(fifo);
+
+
+	/** DEPRECIATED CODE **/
+	/*
 	// opening text files
 	ifstream cam1, cam2, cam3, cam4;
 	string line1, line2, line3, line4;
@@ -63,6 +90,7 @@ int main(int argc, char** argv) {
 		}
 
 	}
+	*/
 
 	printf("mainProc.cpp ended.\n");
 
