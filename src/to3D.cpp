@@ -8,113 +8,104 @@
 using namespace std;
 using namespace cv;
 
-void to3D(vector<Point2f> cam0, vector<Point2f> cam1, vector<Point2f> cam2, vector<Point2f> cam3) {
+void to3D(Point2f p1, Point2f p2, Point2f p3, Point2f p4) {
 
 	// generate output file of 3D coordinates
 	ofstream outputFile;
 	outputFile.open("3D.txt");
-	int smallestVector = 5;
 
-	// vector of points for each camera
+	// all possible quadrant combinations
 
-	// go through every point in the vector
-	for (int i = 0; i < smallestVector; i++) {
+	// no 0 but 1 2 3; three quadrants possible
+	if (p1.x == -1 && p2.x != -1 && p3.x != -1 && p4.x != -1) {
+		outputFile << "all but northwest\n";
+	}
 
-		// no data points on 1 of 4 quadrants
+	// no 1 but 0 2 3; three quadrants possible
+	if (p1.x != -1 && p2.x == -1 && p3.x != -1 && p4.x != -1) {
+		outputFile << "all but northeast\n";
+	}
 
-		// no 0 but 1 2 3; three quadrants possible
-		if (cam0[i].x == -1 && cam1[i].x != -1 && cam2[i].x != -1 && cam3[i].x != -1) {
-			outputFile << "all but northwest\n";
-		}
+	// no 2 but 0 1 3; three quadrants possible
+	if (p1.x != -1 && p2.x != -1 && p3.x == -1 && p4.x != -1) {
+		outputFile << "all but southeast\n";
+	}
 
-		// no 1 but 0 2 3; three quadrants possible
-		if (cam0[i].x != -1 && cam1[i].x == -1 && cam2[i].x != -1 && cam3[i].x != -1) {
-			outputFile << "all but northeast\n";
-		}
+	// no 3 but 0 1 2; three quadrants possible
+	if (p1.x != -1 && p2.x != -1 && p3.x != -1 && p4.x == -1) {
+		outputFile << "all but southwest\n";
+	}
 
-		// no 2 but 0 1 3; three quadrants possible
-		if (cam0[i].x != -1 && cam1[i].x != -1 && cam2[i].x == -1 && cam3[i].x != -1) {
-			outputFile << "all but southeast\n";
-		}
+	// all 1 of 4 accounted for
+	// now 2 of 2
 
-		// no 3 but 0 1 2; three quadrants possible
-		if (cam0[i].x != -1 && cam1[i].x != -1 && cam2[i].x != -1 && cam3[i].x == -1) {
-			outputFile << "all but southwest\n";
-		}
+	// 0 1 but no 2 3; half possible
+	if (p1.x != -1 && p2.x != -1 && p3.x == -1 && p4.x == -1) {
+		outputFile << "north half\n";
+	}
 
-		// all 1 of 4 accounted for
-		// now 2 of 2
+	// 1 2 but no 0 3; half possible
+	if (p1.x == -1 && p2.x != -1 && p3.x != -1 && p4.x == -1) {
+		outputFile << "east half\n";
+	}
 
-		// 0 1 but no 2 3; half possible
-		if (cam0[i].x != -1 && cam1[i].x != -1 && cam2[i].x == -1 && cam3[i].x == -1) {
-			outputFile << "north half\n";
-		}
+	// 2 3 but no 0 1; half possible
+	if (p1.x == -1 && p2.x == -1 && p3.x != -1 && p4.x != -1) {
+		outputFile << "south half\n";
+	}
 
-		// 1 2 but no 0 3; half possible
-		if (cam0[i].x == -1 && cam1[i].x != -1 && cam2[i].x != -1 && cam3[i].x == -1) {
-			outputFile << "east half\n";
-		}
+	// 0 3 but no 1 2; half possible
+	if (p1.x != -1 && p2.x == -1 && p3.x == -1 && p4.x != -1) {
+		outputFile << "west half\n";
+	}
 
-		// 2 3 but no 0 1; half possible
-		if (cam0[i].x == -1 && cam1[i].x == -1 && cam2[i].x != -1 && cam3[i].x != -1) {
-			outputFile << "south half\n";
-		}
+	// 0 2 but no 1 3; unknown outcome
+	if (p1.x != -1 && p2.x == -1 && p3.x != -1 && p4.x == -1) {
+		outputFile << "unknown location\n";
+	}
 
-		// 0 3 but no 1 2; half possible
-		if (cam0[i].x != -1 && cam1[i].x == -1 && cam2[i].x == -1 && cam3[i].x != -1) {
-			outputFile << "west half\n";
-		}
+	// 1 3 but no 0 2; unknown outcome
+	if (p1.x == -1 && p2.x != -1 && p3.x == -1 && p4.x != -1) {
+		outputFile << "unknown location\n";
+	}
 
-		// 0 2 but no 1 3; unknown outcome
-		if (cam0[i].x != -1 && cam1[i].x == -1 && cam2[i].x != -1 && cam3[i].x == -1) {
-			outputFile << "unknown location\n";
-		}
+	// all 2 of 4 accounted for
+	// now 1 of 4 known
 
-		// 1 3 but no 0 2; unknown outcome
-		if (cam0[i].x == -1 && cam1[i].x != -1 && cam2[i].x == -1 && cam3[i].x != -1) {
-			outputFile << "unknown location\n";
-		}
+	// 0 but no 1 2 3; one possible
+	if (p1.x != -1 && p2.x == -1 && p3.x == -1 && p4.x == -1) {
+		outputFile << "northwest corner\n";
+	}
 
-		// all 2 of 4 accounted for
-		// now 1 of 4 known
+	// 1 but no 0 2 3; one possible
+	if (p1.x == -1 && p2.x != -1 && p3.x == -1 && p4.x == -1) {
+		outputFile << "northeast corner\n";
+	}
 
-		// 0 but no 1 2 3; one possible
-		if (cam0[i].x != -1 && cam1[i].x == -1 && cam2[i].x == -1 && cam3[i].x == -1) {
-			outputFile << "northwest corner\n";
-		}
+	// 2 but no 0 1 3; one possible
+	if (p1.x == -1 && p2.x == -1 && p3.x != -1 && p4.x == -1) {
+		outputFile << "southeast corner\n";
+	}
 
-		// 1 but no 0 2 3; one possible
-		if (cam0[i].x == -1 && cam1[i].x != -1 && cam2[i].x == -1 && cam3[i].x == -1) {
-			outputFile << "northeast corner\n";
-		}
+	// 3 but no 0 1 2; one possible
+	if (p1.x == -1 && p2.x == -1 && p3.x == -1 && p4.x != -1) {
+		outputFile << "southwest corner\n";
+	}
 
-		// 2 but no 0 1 3; one possible
-		if (cam0[i].x == -1 && cam1[i].x == -1 && cam2[i].x != -1 && cam3[i].x == -1) {
-			outputFile << "southeast corner\n";
-		}
+	// all 1 of 4 known accounted for
+	// now all or nothing
 
-		// 3 but no 0 1 2; one possible
-		if (cam0[i].x == -1 && cam1[i].x == -1 && cam2[i].x == -1 && cam3[i].x != -1) {
-			outputFile << "southwest corner\n";
-		}
+	// no knowns
+	if (p1.x == -1 && p2.x == -1 && p3.x == -1 && p4.x == -1) {
+		outputFile << "no drone found\n";
+	}
 
-		// all 1 of 4 known accounted for
-		// now all or nothing
+	// all knowns; this is the hard part
+	if (p1.x != -1 && p2.x != -1 && p3.x != -1 && p4.x != -1) {
+		outputFile << "all cams found\n";
 
-		// no knowns
-		if (cam0[i].x == -1 && cam1[i].x == -1 && cam2[i].x == -1 && cam3[i].x == -1) {
-			outputFile << "no drone found\n";
-		}
-
-		// all knowns; this is the hard part
-		if (cam0[i].x != -1 && cam1[i].x != -1 && cam2[i].x != -1 && cam3[i].x != -1) {
-			outputFile << "all cams found\n";
-
-			// camera viewport is 1280 * 960
-			
-		}
-
-
+		// camera viewport is 1280 * 960
+		
 	}
 
 	outputFile.close();

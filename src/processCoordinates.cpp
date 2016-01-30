@@ -3,6 +3,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include "to3D.cpp"
 
 #include "opencv2/core/core.hpp"
 
@@ -60,6 +61,8 @@ int processCoordinates(string one, string two, string three, string four) {
 		printf("Delimited %s into %f, %f\n", four.c_str(), p4.x, p4.y);
 	}
 
+	// no clue yet how to return this
+	to3D(p1, p2, p3, p4);
 
 	return 0;
 }
