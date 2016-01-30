@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <iostream>
 #include <fstream>
 
@@ -18,6 +19,49 @@ Point2f stringtoPoint(string line) {
 
 	return Point2f(a, b);
 
+}
+
+Point2f delimiter(string str) {
+
+	string delim = ",";
+	size_t pos = 0;
+	string token;
+
+	pos = str.find(delim);
+
+	string x = str.substr(0, pos);
+	string y = str.substr(pos + delim.length(), str.length());
+
+	return Point2f(stoi(x), stoi(y));
+}
+
+int processCoordinates(string one, string two, string three, string four) {
+
+	Point2f p1, p2, p3, p4;
+
+	// run coordinate string through delimiter if the coordinate was found
+	if (one.find("-1") == string::npos) {
+		p1 = delimiter(one);
+		printf("Delimited %s into %f, %f\n", one.c_str(), p1.x, p1.y);
+	}
+
+	if (two.find("-1") == string::npos) {
+		p2 = delimiter(two);
+		printf("Delimited %s into %f, %f\n", two.c_str(), p2.x, p2.y);
+	}
+
+	if (three.find("-1") == string::npos) {
+		p3 = delimiter(three);
+		printf("Delimited %s into %f, %f\n", three.c_str(), p3.x, p3.y);
+	}
+
+	if (four.find("-1") == string::npos) {
+		p4 = delimiter(four);
+		printf("Delimited %s into %f, %f\n", four.c_str(), p4.x, p4.y);
+	}
+
+
+	return 0;
 }
 
 vector<Point2f> cleanCoordinates(int camera) {

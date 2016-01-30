@@ -119,7 +119,7 @@ void detectColor() {
 			capture[i-1] >> camFrames[i-1];
 			Point p = calculateColor(camFrames[i-1], outputFiles, i);
 			outputFiles[i-1] << p.x << "," << p.y << endl;				// endl also flushes the line out
-			cout << p.x << ", " << p.y << " written to camera" << to_string(i) << ".txt\n";
+			cout << p.x << ", " << p.y << " written from camera " << to_string(i) << "\n";
 			
 			// string to char* conversion code
 			strPhrase = to_string(p.x) + "," + to_string(p.y);

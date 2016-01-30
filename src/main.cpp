@@ -24,8 +24,7 @@ int main(int argc, char** argv) {
 	int fifo = mkfifo("/tmp/fifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
 	/*
-		Runs color detection on all cameras and saves coordinates
-		as a text file under camerax.txt
+		Runs color detection on all cameras and writes coordinates into named pipe
 	*/
 
 	if (NUM_CAMERAS != 0) {	detectColor(); }

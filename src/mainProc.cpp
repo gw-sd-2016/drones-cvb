@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <iostream>
 
@@ -37,12 +38,44 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
+	int i = 1;
+	string one, two, three, four;
+
 	while (true) {
 
 		if ((num = read(fifo, temp, sizeof(temp))) < 0) {
 			printf("%s\n", strerror(errno));
 		}
-		printf("In FIFO is %d %s \n", num, temp);
+		printf("In FIFO is %s \n", temp);
+
+		// converts temp (pipe contents) to string and sets it according to
+		// its camera number
+		switch (i) {
+			case 1: one = string(temp);
+			case 2: two = string(temp);
+			case 3: three = string(temp);
+			case 4: four = string(temp);
+		}
+
+		printf("Saved to switch %d\n", i);
+
+		// loops 1-2-3-4-1-2-3-4
+		if (i != 4) { i++; }
+		else {
+			
+			printf("Sending data to processor...\n");
+
+			int ret = processCoordinates(one, two, three, four);
+
+			if (ret == 1) {
+				printf("Coordinate processing failed\n");
+				return 0;
+			}
+
+			else { printf("Coordinate processed succeeded. Continuing...\n"); }
+
+			i = 1;
+		}
 
 	}
 
