@@ -105,6 +105,13 @@ void to3D(Point2f p1, Point2f p2, Point2f p3, Point2f p4) {
 		outputFile << "all cams found\n";
 
 		// camera viewport is 1280 * 960
+
+		/*
+		Might be able to calculate height separately. Use next wall's camera to find
+		object distance to the first camera from its x-coordinate.
+		If close to camera, high drone = high in viewport
+		If far from camera, high drone = maybe 3/4 up. Not possible to hit highest point with distance
+		*/
 		
 	}
 

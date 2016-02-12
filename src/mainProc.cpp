@@ -3,8 +3,6 @@
 	mainProc.cpp
 */
 
-#include "to3D.cpp"
-#include "liveSurf.cpp"
 #include "processCoordinates.cpp"
 #include <fcntl.h>
 #include <sys/stat.h>
