@@ -4,6 +4,7 @@
 */
 
 #include "opencv.h"
+#include "numCameras.h"
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
@@ -17,7 +18,7 @@ using namespace std;
 using namespace cv::xfeatures2d;
 
 // hardcoded value of number of cameras to analyze
-#define NUM_CAMERAS 4
+//#define NUM_CAMERAS 4
 
 int kb;
 

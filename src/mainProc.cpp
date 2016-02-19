@@ -5,6 +5,8 @@
 
 #include "processCoordinates.cpp"
 #include <fcntl.h>
+#include "opencv.h"
+#include "numCameras.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -13,11 +15,45 @@
 #include <unistd.h>
 #include <iostream>
 
-// hardcoded value of number of cameras to analyze
-#define NUM_CAMERAS 4
-
 // define buffer size for piping
 #define MAX_BUF 1024
+
+/* UNDER CONSTRUCTION 
+void processCameras() {
+
+	// hard coded camera values
+	double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
+										{0, 1.4049474067879219e+03, 4.7950000000000000e+02}, 
+										{0, 0, 1}};
+
+	double FRONT_DISTORTION_COEFFICIENTS[5][1] = {{-3.7335300703975699e-01}, {1.7185670573063845e+01}, 
+												  {0}, {0}, {-2.7437573692376083e+02}};
+
+    double SIDE_CAMERA_MATRIX[3][3] = {{1.3626453437413036e+03, 0, 6.3950000000000000e+02},
+    								   {0, 1.3626453437413036e+03, 4.7950000000000000e+02},
+    								   {0, 0, 1}};
+
+    double SIDE_DISTORTION_COEFFICIENTS[5][1] = {{-4.1374104405962936e-01}, {1.0376994656068659e+01},
+    											 {0}, {0}, {-9.1610858982185292e+01}};
+
+	Mat front_intrinsics, front_distCoeffs;
+	Mat side_intrinsics, side_distCoeffs;
+	Mat rvec, tvec, rotationMatrix;
+
+	front_intrinsics = Mat(3, 3, DataType<double>::type, &FRONT_CAMERA_MATRIX);
+	front_distCoeffs = Mat(5, 1, DataType<double>::type, &FRONT_DISTORTION_COEFFICIENTS);
+	side_intrinsics = Mat(3, 3, DataType<double>::type, &SIDE_CAMERA_MATRIX);
+	side_distCoeffs = Mat(5, 1, DataType<double>::type, &SIDE_DISTORTION_COEFFICIENTS);
+
+	rvec.create(1, 3, DataType<double>::type);
+	tvec.create(1, 3, DataType<double>::type);
+	rotationMatrix.create(3, 3, DataType<double>::type);
+
+	solvePnP(worldPlane, imagePlane, front_intrinsics, front_distCoeffs, rvec, tvec);
+	Rodrigues(rvec, rotationMatrix);
+
+}
+*/	
 
 /**
 	This program starts the processing of the coordinates that were detected from text files.
@@ -39,7 +75,14 @@ int main(int argc, char** argv) {
 	int i = 1;
 	string one, two, three, four;
 
-	processCameras();
+	//processCameras();
+
+	// Zeroing out strings so those greater than NUM_CAMERAS doesn't crash.
+	// Will be treated as if coordinate not found for that camera.
+	one = "-1";
+	two = "-1";
+	three = "-1";
+	four = "-1";
 
 	while (true) {
 
@@ -52,18 +95,22 @@ int main(int argc, char** argv) {
 		// its camera number
 		switch (i) {
 			case 1: one = string(temp);
+					break;
 			case 2: two = string(temp);
+					break;
 			case 3: three = string(temp);
+					break;
 			case 4: four = string(temp);
+					break;
 		}
 
 		printf("Saved to switch %d\n", i);
 
-		// loops 1-2-3-4-1-2-3-4
-		if (i != 4) { i++; }
+		// loops from 1 to NUM_CAMERAS
+		if (i != NUM_CAMERAS) { i++; }
 		else {
 			
-			printf("Sending data to processor...\n");
+			printf("Sending data to processor...\n\n");
 
 			int ret = processCoordinates(one, two, three, four);
 
@@ -72,11 +119,10 @@ int main(int argc, char** argv) {
 				return 0;
 			}
 
-			else { printf("Coordinate processed succeeded. Continuing...\n"); }
+			else { printf("\nCoordinate processed succeeded. Continuing...\n"); }
 
 			i = 1;
 		}
-
 	}
 
 	close(fifo);
@@ -129,38 +175,3 @@ int main(int argc, char** argv) {
 
 }
 
-void processCameras() {
-
-	// hard coded camera values
-	double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
-										{0, 1.4049474067879219e+03, 4.7950000000000000e+02}, 
-										{0, 0, 1}};
-
-	double FRONT_DISTORTION_COEFFICIENTS[5][1] = {{-3.7335300703975699e-01}, {1.7185670573063845e+01}, 
-												  {0}, {0}, {-2.7437573692376083e+02}};
-
-    double SIDE_CAMERA_MATRIX[3][3] = {{1.3626453437413036e+03, 0, 6.3950000000000000e+02},
-    								   {0, 1.3626453437413036e+03, 4.7950000000000000e+02},
-    								   {0, 0, 1}};
-
-    double SIDE_DISTORTION_COEFFICIENTS[5][1] = {{-4.1374104405962936e-01}, {1.0376994656068659e+01},
-    											 {0}, {0}, {-9.1610858982185292e+01}};
-
-	Mat front_intrinsics, front_distCoeffs;
-	Mat side_intrinsics, side_distCoeffs;
-
-	front_intrinsics = Mat(3, 3, double, &FRONT_CAMERA_MATRIX);
-	front_distCoeffs = Mat(5, 1, double, &FRONT_DISTORTION_COEFFICIENTS);
-	side_intrinsics = Mat(3, 3, double, &SIDE_CAMERA_MATRIX);
-	side_distCoeffs = Mat(5, 1, double, &SIDE_DISTORTION_COEFFICIENTS);
-
-	rvec.create(1, 3, DataType<double>::type);
-	tvec.create(1, 3, DataType<double>::type);
-	rotationMatrix.create(3, 3, DataType<double>::type);
-
-	solvePnP(worldPlane, imagePlane, intrinsics, distCoeffs, rvec, tvec);
-	Rodrigues(rvec, rotationMatrix);
-
-
-
-}

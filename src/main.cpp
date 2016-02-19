@@ -1,9 +1,10 @@
-/*
+	/*
 	Christoph von Braun
 	main.cpp
 */
 
 #include "colorDetection.cpp"
+#include "numCameras.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

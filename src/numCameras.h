@@ -1,0 +1,7 @@
+#ifndef CAMERAS_HEADER_GUARD
+#define CAMERAS_HEADER_GUARD
+
+
+#define NUM_CAMERAS 2
+
+#endif
