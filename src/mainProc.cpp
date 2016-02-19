@@ -65,9 +65,18 @@ int main(int argc, char** argv) {
 
 	printf("mainProc.cpp started.\n");
 
+	// opening the first pipe for reading in from color detection
 	int num, fifo;
 	char temp[38];
 	if ((fifo = open("/tmp/fifo", O_RDONLY)) < 0) {
+		printf("%s\n", strerror(errno));
+		return 0;
+	}
+
+	// opening the second pipe for writing out to display program
+	int num2, fifo2;
+	fifo2 = mkfifo("/tmp/fifo2", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+	if ((fifo2 = open("/tmp/fifo2", O_WRONLY)) < 0) {
 		printf("%s\n", strerror(errno));
 		return 0;
 	}
@@ -110,9 +119,13 @@ int main(int argc, char** argv) {
 		if (i != NUM_CAMERAS) { i++; }
 		else {
 			
-			printf("Sending data to processor...\n\n");
+			printf("Sending data to processor and display...\n\n");
 
 			int ret = processCoordinates(one, two, three, four);
+			char* oneArray = (char*)one.c_str();
+			if ((num2 = write(fifo2, oneArray, strlen(oneArray) + 1)) < 0) {
+				printf("ERROR: %s\n", strerror(errno));
+			}
 
 			if (ret == 1) {
 				printf("Coordinate processing failed\n");
