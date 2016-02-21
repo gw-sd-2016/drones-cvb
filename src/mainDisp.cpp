@@ -33,13 +33,13 @@ Point delimiter(string str) {
 /**
 	Draws a fixed-size filled circle
 **/
-void drawCircle(Mat img, Point center) {
+void drawCircle(Mat img, Point center, int b, int g, int r) {
 
 	int thickness = -1;
 	int lineType = 8;
 	int radius = 5;
 
-	circle(img, center, radius, Scalar(0, 0, 255), thickness, lineType);
+	circle(img, center, radius, Scalar(b, g, r), thickness, lineType);
 
 }
 
@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
 
 	int num, fifo;
 	char temp[38];
+	Point previous = Point(0, 0);
 
 	// opening the pipe
 	if ((fifo = open("/tmp/fifo2", O_RDONLY)) < 0) {
@@ -74,7 +75,15 @@ int main(int argc, char** argv) {
 		string str(temp);
 		Point pt = delimiter(str);
 		printf("Delimited to %d %d\n", pt.x, pt.y);
-		drawCircle(display_image, pt);
+
+		if (pt.x == -1 || pt.y == -1) {
+			drawCircle(display_image, previous, 0, 0, 255);
+		}
+		else {
+			previous = pt;
+			drawCircle(display_image, pt, 0, 255, 0);
+		}
+
 		imshow(window, display_image);
 		waitKey(2);
 
