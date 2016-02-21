@@ -26,7 +26,7 @@ int kb;
 	Takes in a Matrix as a frame of a camera, and processes it for all instances of red.
 	Records the results in a text file with the coordinates of the instance of red in the frame
 **/
-Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
+Point calculateColor(Mat bgr_image) {
 
 	Mat hsv_image;
 
@@ -61,13 +61,11 @@ Point calculateColor(Mat bgr_image, ofstream outputFiles[], int cameraIndex) {
 
 		// write coordinates to file
 		circle(red_hue_image, center, radius, Scalar(0, 255, 0), 5);
-		//outputFiles[cameraIndex-1] << center.x << "," << center.y << "\n";
 		return center;
 	}
 
 	// if no circles have been detected, write (-1, -1) to signify
 	if (circles.size() == 0) {
-		//outputFiles[cameraIndex-1] << -1 << "," << -1 << "\n";
 		return Point(-1, -1);
 	}
 
@@ -99,17 +97,30 @@ void detectColor() {
 	}
 
 	// setup loop; opens the camera streams and output files
+	int j;
 	for (int i = 1; i <= NUM_CAMERAS; i++) {
 		// open the cameras
-		labels[i-1] = "Camera " + to_string(i);
-		capture[i-1].open(i);
+		if (i == 1) {
+			j = CAM_ONE;
+		}
+		else if (i == 2) {
+			j = CAM_TWO;
+		}
+
+		labels[i-1] = "Camera " + to_string(j);
+		capture[i-1].open(j);
 
 		// open the output files
-		cout << "Opening camera" << to_string(i) << ".txt\n";
-		outputFiles[i-1].open("camera" + to_string(i) + ".txt");
+		cout << "Opening camera" << to_string(j) << ".txt\n";
+		outputFiles[i-1].open("camera" + to_string(j) + ".txt");
 	}
 
 	printf("Setup complete.\n");
+
+	// setup window for displaying
+	char feed1[] = "Camera Feed 1";
+	char feed2[] = "Camera Feed 2";
+
 
 	// loops forever; don't want a sleep() here because calculateColor is slow enough
 	// I'm already missing some frames here.
@@ -118,9 +129,18 @@ void detectColor() {
 		// runs calculateColor() on each frame of each camera
 		for (int i = 1; i <= NUM_CAMERAS; i++) {
 			capture[i-1] >> camFrames[i-1];
-			Point p = calculateColor(camFrames[i-1], outputFiles, i);
+			Point p = calculateColor(camFrames[i-1]);
 			outputFiles[i-1] << p.x << "," << p.y << endl;				// endl also flushes the line out
 			cout << p.x << ", " << p.y << " written from camera " << to_string(i) << "\n";
+
+			// display frame and detected location
+			circle(camFrames[i-1], p, 5, Scalar(0, 255, 0), -1, 8);
+			if (i == 1) {
+				imshow(feed1, camFrames[i-1]);
+			}
+			else if (i == 2) {
+				imshow(feed2, camFrames[i-1]);
+			}
 			
 			// string to char* conversion code
 			strPhrase = to_string(p.x) + "," + to_string(p.y);
@@ -133,6 +153,7 @@ void detectColor() {
 				printf("ERROR: %s\n", strerror(errno));
 			}
 
+			waitKey(1);				// forces the windows to display
 			delete[] phrase;
 		}
 	}

@@ -3,5 +3,7 @@
 
 
 #define NUM_CAMERAS 2
+#define CAM_ONE 0
+#define CAM_TWO 1
 
 #endif
