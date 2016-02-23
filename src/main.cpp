@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 		Runs color detection on all cameras and writes coordinates into named pipe
 	*/
 
+	// NUM_CAMERAS check is for enabling a debugging mode if it's zero
 	if (NUM_CAMERAS != 0) {	detectColor(); }
 
 	printf("Color detection exited.\n");

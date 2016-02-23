@@ -44,6 +44,40 @@ int processCoordinates(string one, string two, string three, string four) {
 	if (one.find("-1") == string::npos) {
 		p1 = delimiter(one);
 		printf("Camera one delimited %s into %f, %f\n", one.c_str(), p1.x, p1.y);
+
+		/* NEW CODE */
+
+		// test of one camera's intrinsics
+		double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
+											{0, 1.4049474067879219e+03, 4.7950000000000000e+02}, 
+											{0, 0, 1}};
+
+
+		// convert 2D point into homogenous point
+		Matx31f = hom_pt(p1.x, p1.y, 1);
+
+		// multiply by inverse of camera intrinsics matrix
+		hom_pt = FRONT_CAMERA_MATRIX.inv() * hom_pt;		// this is the line that actually puts
+															// the coordinate into world coords
+
+		Point3f origin(0, 0, 0);
+		Point3f direction(hom_pt(0), hom_pt(1), hom_pt(2);
+
+		// normalize the direction to get unit vector
+		direction *= 1/norm(direction);
+
+		/*
+			Origin and direction now define the ray in the world space that corresponds to
+			the image point. Note that the origin is centered on the camera. Use camera pose
+			to transform to a different origin. Distortion coefficients map from the camera
+			to the pinhole camera model and should be used at the very beginning to find the
+			actual 2D coordinates. Then:
+
+			1. Undistort 2D coordinate with distortion coefficients
+			2. Convert to ray (above)
+			3. Move that ray to desired coordinate system
+		*/
+
 	}
 
 	if (two.find("-1") == string::npos) {
@@ -60,6 +94,9 @@ int processCoordinates(string one, string two, string three, string four) {
 		p4 = delimiter(four);
 		printf("Camera four delimited %s into %f, %f\n", four.c_str(), p4.x, p4.y);
 	}
+
+	// currently only programed for two cameras
+
 
 	// no clue yet how to return this
 	to3D(p1, p2, p3, p4);
