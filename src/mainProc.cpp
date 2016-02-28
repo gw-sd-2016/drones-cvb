@@ -18,8 +18,13 @@
 // define buffer size for piping
 #define MAX_BUF 1024
 
-/* UNDER CONSTRUCTION 
+/* UNDER CONSTRUCTION */
+
 void processCameras() {
+
+	// hard coded output of camera calibration
+	// currently only intrinsic matrix and distortion coefficients
+	// TODO: add pose
 
 	// hard coded camera values
 	double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
@@ -40,6 +45,23 @@ void processCameras() {
 	Mat side_intrinsics, side_distCoeffs;
 	Mat rvec, tvec, rotationMatrix;
 
+	vector<Point3d> world_coords;
+	vector<Point2d> pixel_coords;
+
+	/*
+		Values here are based on calibration of side camera
+		using image on wall.
+	*/
+	world_coords.push_back(Point3d(3.251, 1.854, 1.6002));
+	world_coords.push_back(Point3d(3.251, 1.8288, 1.397));
+	world_coords.push_back(Point3d(3.251, 2.1082, 1.3462));
+	world_coords.push_back(Point3d(3.251, 2.159, 1.5494));
+
+	pixel_coords.push_back(Point2d(723, 380));
+	pixel_coords.push_back(Point2d(744, 468));
+	pixel_coords.push_back(Point2d(622, 485));
+	pixel_coords.push_back(Point2d(606, 397));
+
 	front_intrinsics = Mat(3, 3, DataType<double>::type, &FRONT_CAMERA_MATRIX);
 	front_distCoeffs = Mat(5, 1, DataType<double>::type, &FRONT_DISTORTION_COEFFICIENTS);
 	side_intrinsics = Mat(3, 3, DataType<double>::type, &SIDE_CAMERA_MATRIX);
@@ -47,13 +69,24 @@ void processCameras() {
 
 	rvec.create(1, 3, DataType<double>::type);
 	tvec.create(1, 3, DataType<double>::type);
-	rotationMatrix.create(3, 3, DataType<double>::type);
+	//rotationMatrix.create(3, 3, DataType<double>::type);
 
-	solvePnP(worldPlane, imagePlane, front_intrinsics, front_distCoeffs, rvec, tvec);
-	Rodrigues(rvec, rotationMatrix);
+	solvePnP(world_coords, pixel_coords, side_intrinsics, side_distCoeffs, rvec, tvec);
+
+	Mat cameraRotationVector, R;
+	Rodrigues(rvec, R);
+	Rodrigues(R.t(), cameraRotationVector);
+	Mat cameraTranslationVector = -R.t() * tvec;
+
+	// Camera coordinates contained in cameraTranslationVector
+	// Camera pose contained in cameraRotationVector
+
+	// Printing them out
+	cout << "Camera coordinates: " << endl << " " << cameraTranslationVector << endl << endl;
+	cout << "Camera pose: " << endl << " " << cameraRotationVector << endl << endl;
 
 }
-*/	
+	
 
 /**
 	This program starts the processing of the coordinates that were detected from text files.
@@ -84,7 +117,7 @@ int main(int argc, char** argv) {
 	int i = 1;
 	string one, two, three, four;
 
-	//processCameras();
+	processCameras();
 
 	// Zeroing out strings so those greater than NUM_CAMERAS doesn't crash.
 	// Will be treated as if coordinate not found for that camera.

@@ -44,6 +44,7 @@ int processCoordinates(string one, string two, string three, string four) {
 	if (one.find("-1") == string::npos) {
 		p1 = delimiter(one);
 		printf("Camera one delimited %s into %f, %f\n", one.c_str(), p1.x, p1.y);
+		homogenous(p1);
 	}
 
 	if (two.find("-1") == string::npos) {
