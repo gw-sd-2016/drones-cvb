@@ -24,7 +24,7 @@ void processCameras() {
 
 	// hard coded output of camera calibration
 	// currently only intrinsic matrix and distortion coefficients
-	// TODO: add pose
+	// TODO: add pose; complete but not tested
 
 	// hard coded camera values
 	double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
@@ -154,15 +154,17 @@ int main(int argc, char** argv) {
 			
 			printf("Sending data to processor and display...\n\n");
 
-			int ret = processCoordinates(one, two, three, four);
+			Point3f currLoc = processCoordinates(one, two, three, four);
 			char* oneArray = (char*)one.c_str();
+			// Need to change this to write out 3D coordinate
+			// Currently writes 2D coordinate of camera one
 			if ((num2 = write(fifo2, oneArray, strlen(oneArray) + 1)) < 0) {
 				printf("ERROR: %s\n", strerror(errno));
 			}
 
-			if (ret == 1) {
+			if (currLoc.x == -1 || currLoc.y == -1 || currLoc.z == -1) {
 				printf("Coordinate processing failed\n");
-				return 0;
+				//return 0;
 			}
 
 			else { printf("\nCoordinate processed succeeded. Continuing...\n"); }
@@ -172,50 +174,6 @@ int main(int argc, char** argv) {
 	}
 
 	close(fifo);
-
-
-	/** DEPRECIATED CODE **/
-	/*
-	// opening text files
-	ifstream cam1, cam2, cam3, cam4;
-	string line1, line2, line3, line4;
-	cam1.open("camera1.txt");
-	cam2.open("camera2.txt");
-	cam3.open("camera3.txt");
-	cam4.open("camera4.txt");
-
-	// this code block still under construction
-
-	// Needs to read files while they are still being written to.
-	// this will eventually call something in processCoordinates.cpp and to3D.cpp
-	// for processing, cleaning up and combining the camera data
-	if (cam1.is_open() && cam2.is_open() && cam3.is_open() && cam4.is_open()) {
-
-		printf("Everything is open.\n");
-
-		while (true) {
-			while (getline(cam1, line1)) { cout << "Cam1: " << line1 << "\n"; }
-			while (getline(cam2, line2)) { cout << "Cam2: " << line2 << "\n"; }
-			while (getline(cam3, line3)) { cout << "Cam3: " << line3 << "\n"; }
-			while (getline(cam4, line4)) { cout << "Cam4: " << line4 << "\n"; }
-
-			if (!cam1.eof()) break;
-			if (!cam2.eof()) break;
-			if (!cam3.eof()) break;
-			if (!cam4.eof()) break;
-
-			cam1.clear();
-			cam2.clear();
-			cam3.clear();
-			cam4.clear();
-
-			sleep(5);		// prevents being a CPU hog
-
-			cout << "One round\n";
-		}
-
-	}
-	*/
 
 	printf("mainProc.cpp ended.\n");
 
