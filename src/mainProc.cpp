@@ -44,23 +44,37 @@ void processCameras() {
 	Mat front_intrinsics, front_distCoeffs;
 	Mat side_intrinsics, side_distCoeffs;
 	Mat rvec, tvec, rotationMatrix;
+	Mat rvec2, tvec2, rotationMatrix2;
 
 	vector<Point3d> world_coords;
 	vector<Point2d> pixel_coords;
+
+	vector<Point3d> world_coords2;
+	vector<Point2d> pixel_coords2;
 
 	/*
 		Values here are based on calibration of side camera
 		using image on wall.
 	*/
-	world_coords.push_back(Point3d(3.251, 1.854, 1.6002));
-	world_coords.push_back(Point3d(3.251, 1.8288, 1.397));
-	world_coords.push_back(Point3d(3.251, 2.1082, 1.3462));
-	world_coords.push_back(Point3d(3.251, 2.159, 1.5494));
+	world_coords.push_back(Point3d(3.251, 1.8504, 1.6002));		// side cam, top right
+	world_coords.push_back(Point3d(3.251, 1.8288, 1.397));		// side cam, bottom right
+	world_coords.push_back(Point3d(3.251, 2.1082, 1.3462));		// side cam, bottom left
+	world_coords.push_back(Point3d(3.251, 2.1590, 1.5494));		// side cam, top left
 
-	pixel_coords.push_back(Point2d(723, 380));
-	pixel_coords.push_back(Point2d(744, 468));
-	pixel_coords.push_back(Point2d(622, 485));
-	pixel_coords.push_back(Point2d(606, 397));
+	pixel_coords.push_back(Point2d(723, 380));					// side cam, top right
+	pixel_coords.push_back(Point2d(744, 468));					// side cam, bottom right
+	pixel_coords.push_back(Point2d(622, 485));					// side cam, bottom left
+	pixel_coords.push_back(Point2d(606, 397));					// side cam, top left
+
+	world_coords2.push_back(Point3d(1.2319, 2.0574, 1.9177));	// front cam, top right
+	world_coords2.push_back(Point3d(1.4605, 1.8288, 1.7463));	// front cam, bottom right
+	world_coords2.push_back(Point3d(0.7874, 1.8288, 1.7463));	// front cam, bottom left
+	world_coords2.push_back(Point3d(0.7620, 1.8542, 1.9177));	// front cam, top left
+
+	pixel_coords2.push_back(Point2d(760, 344));					// front cam, top right
+	pixel_coords2.push_back(Point2d(985, 504));					// front cam, bottom right
+	pixel_coords2.push_back(Point2d(423, 469));					// front cam, bottom left
+	pixel_coords2.push_back(Point2d(364, 275));					// front cam, top left
 
 	front_intrinsics = Mat(3, 3, DataType<double>::type, &FRONT_CAMERA_MATRIX);
 	front_distCoeffs = Mat(5, 1, DataType<double>::type, &FRONT_DISTORTION_COEFFICIENTS);
@@ -71,20 +85,33 @@ void processCameras() {
 	tvec.create(1, 3, DataType<double>::type);
 	//rotationMatrix.create(3, 3, DataType<double>::type);
 
-	solvePnP(world_coords, pixel_coords, side_intrinsics, side_distCoeffs, rvec, tvec);
+	rvec2.create(1, 3, DataType<double>::type);
+	tvec2.create(1, 3, DataType<double>::type);
+	//rotationmatrix2.create(3, 3, DataType<double>::type);
 
+	solvePnP(world_coords, pixel_coords, side_intrinsics, side_distCoeffs, rvec, tvec);
+	solvePnP(world_coords2, pixel_coords2, front_intrinsics, front_distCoeffs, rvec2, tvec2);
+
+	// side cam
 	Mat cameraRotationVector, R;
 	Rodrigues(rvec, R);
 	Rodrigues(R.t(), cameraRotationVector);
 	Mat cameraTranslationVector = -R.t() * tvec;
 
+	// front cam
+	Mat cameraRotationVector2, R2;
+	Rodrigues(rvec2, R2);
+	Rodrigues(R2.t(), cameraRotationVector2);
+	Mat cameraTranslationVector2 = -R2.t() * tvec2;
+
 	// Camera coordinates contained in cameraTranslationVector
 	// Camera pose contained in cameraRotationVector
 
 	// Printing them out
-	cout << "Camera coordinates: " << endl << " " << cameraTranslationVector << endl << endl;
-	cout << "Camera pose: " << endl << " " << cameraRotationVector << endl << endl;
-
+	cout << "Side Camera coordinates: " << endl << " " << cameraTranslationVector << endl << endl;
+	cout << "Side Camera pose: " << endl << " " << cameraRotationVector << endl << endl;
+	cout << "Front Camera coordinates: " << endl << " " << cameraTranslationVector2 << endl << endl;
+	cout << "Front Camera pose: " << endl << " " << cameraRotationVector2 << endl << endl;
 }
 	
 

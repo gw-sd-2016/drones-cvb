@@ -49,5 +49,9 @@ Point3f to3D(Point2f p1, Point2f p2, Point2f p3, Point2f p4) {
 	
 	// only going to assume that p1 and p2 are in use for now
 	// CALCULATION HERE
+
+	homogenous(p1);
+	homogenous(p2);
+
 	return Point3f(-1, -1, -1);
 }
