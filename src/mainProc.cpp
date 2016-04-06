@@ -18,13 +18,10 @@
 // define buffer size for piping
 #define MAX_BUF 1024
 
-/* UNDER CONSTRUCTION */
-
 void processCameras() {
 
 	// hard coded output of camera calibration
 	// currently only intrinsic matrix and distortion coefficients
-	// TODO: add pose; complete but not tested
 
 	// hard coded camera values
 	double FRONT_CAMERA_MATRIX[3][3] = {{1.4049474067879219e+03, 0, 6.3950000000000000e+02}, 
@@ -53,23 +50,24 @@ void processCameras() {
 	vector<Point2d> pixel_coords2;
 
 	/*
-		Values here are based on calibration of side camera
-		using image on wall.
+		Values here are based on calibration of cameras
+		with real object
 	*/
-	world_coords.push_back(Point3d(3.251, 1.8504, 1.6002));		// side cam, top right
-	world_coords.push_back(Point3d(3.251, 1.8288, 1.397));		// side cam, bottom right
-	world_coords.push_back(Point3d(3.251, 2.1082, 1.3462));		// side cam, bottom left
-	world_coords.push_back(Point3d(3.251, 2.1590, 1.5494));		// side cam, top left
+
+	world_coords.push_back(Point3d(3.251, 1.6002, 1.8504));		// side cam, top right
+	world_coords.push_back(Point3d(3.251, 1.3970, 1.8288));		// side cam, bottom right
+	world_coords.push_back(Point3d(3.251, 1.3462, 2.1082));		// side cam, bottom left
+	world_coords.push_back(Point3d(3.251, 1.5494, 2.1590));		// side cam, top left
 
 	pixel_coords.push_back(Point2d(723, 380));					// side cam, top right
 	pixel_coords.push_back(Point2d(744, 468));					// side cam, bottom right
 	pixel_coords.push_back(Point2d(622, 485));					// side cam, bottom left
 	pixel_coords.push_back(Point2d(606, 397));					// side cam, top left
 
-	world_coords2.push_back(Point3d(1.2319, 2.0574, 1.9177));	// front cam, top right
-	world_coords2.push_back(Point3d(1.4605, 1.8288, 1.7463));	// front cam, bottom right
-	world_coords2.push_back(Point3d(0.7874, 1.8288, 1.7463));	// front cam, bottom left
-	world_coords2.push_back(Point3d(0.7620, 1.8542, 1.9177));	// front cam, top left
+	world_coords2.push_back(Point3d(1.2319, 1.9177, 2.0574));	// front cam, top right
+	world_coords2.push_back(Point3d(1.4605, 1.7463, 1.8288));	// front cam, bottom right
+	world_coords2.push_back(Point3d(0.7874, 1.7463, 1.8288));	// front cam, bottom left
+	world_coords2.push_back(Point3d(0.7620, 1.9177, 1.8542));	// front cam, top left
 
 	pixel_coords2.push_back(Point2d(760, 344));					// front cam, top right
 	pixel_coords2.push_back(Point2d(985, 504));					// front cam, bottom right
@@ -81,14 +79,6 @@ void processCameras() {
 	side_intrinsics = Mat(3, 3, DataType<double>::type, &SIDE_CAMERA_MATRIX);
 	side_distCoeffs = Mat(5, 1, DataType<double>::type, &SIDE_DISTORTION_COEFFICIENTS);
 
-	rvec.create(1, 3, DataType<double>::type);
-	tvec.create(1, 3, DataType<double>::type);
-	//rotationMatrix.create(3, 3, DataType<double>::type);
-
-	rvec2.create(1, 3, DataType<double>::type);
-	tvec2.create(1, 3, DataType<double>::type);
-	//rotationmatrix2.create(3, 3, DataType<double>::type);
-
 	solvePnP(world_coords, pixel_coords, side_intrinsics, side_distCoeffs, rvec, tvec);
 	solvePnP(world_coords2, pixel_coords2, front_intrinsics, front_distCoeffs, rvec2, tvec2);
 
@@ -97,6 +87,7 @@ void processCameras() {
 	Rodrigues(rvec, R);
 	Rodrigues(R.t(), cameraRotationVector);
 	Mat cameraTranslationVector = -R.t() * tvec;
+
 
 	// front cam
 	Mat cameraRotationVector2, R2;
@@ -114,6 +105,23 @@ void processCameras() {
 	cout << "Front Camera pose: " << endl << " " << cameraRotationVector2 << endl << endl;
 }
 	
+
+/**
+	Delimiter function for applying to incoming data in pipe
+**/
+Point2f delimiter2(string str) {
+
+	string delim = ",";
+	size_t pos = 0;
+	string token;
+
+	pos = str.find(delim);
+
+	string x = str.substr(0, pos);
+	string y = str.substr(pos + delim.length(), str.length());
+
+	return Point(stoi(x), stoi(y));
+}
 
 /**
 	This program starts the processing of the coordinates that were detected from text files.
@@ -158,7 +166,6 @@ int main(int argc, char** argv) {
 		if ((num = read(fifo, temp, sizeof(temp))) < 0) {
 			printf("%s\n", strerror(errno));
 		}
-		printf("In FIFO is %s \n", temp);
 
 		// converts temp (pipe contents) to string and sets it according to
 		// its camera number
@@ -173,28 +180,40 @@ int main(int argc, char** argv) {
 					break;
 		}
 
-		printf("Saved to switch %d\n", i);
+		printf("%s from camera %d\n", temp, i);
 
 		// loops from 1 to NUM_CAMERAS
 		if (i != NUM_CAMERAS) { i++; }
 		else {
-			
-			printf("Sending data to processor and display...\n\n");
+			Point3f finalCoordinate = processCoordinates(one, two, three, four);
+			ostringstream ssx, ssy, ssz;
+			ssx << finalCoordinate.x;
+			ssy << finalCoordinate.y;
+			ssz << finalCoordinate.z;
+			string sx(ssx.str());
+			string sy(ssy.str());
+			string sz(ssz.str());
+			string finalCoordinateStr = sx + ", " + sy + ", " + sz;
 
-			Point3f currLoc = processCoordinates(one, two, three, four);
-			char* oneArray = (char*)one.c_str();
-			// Need to change this to write out 3D coordinate
-			// Currently writes 2D coordinate of camera one
-			if ((num2 = write(fifo2, oneArray, strlen(oneArray) + 1)) < 0) {
+			// test for proximity to hard-coded values of demo
+			Point2f pt = delimiter2(one);
+			string additionalStr = "\n";
+			int threshold = 100;
+			int hardX = 555;
+			int hardY = 375;
+			if ((abs(pt.x-100) < threshold) && (abs(pt.y-100) < threshold)) {
+				additionalStr = "\n Match found!\n";
+			}
+
+			string outputStr = "2D coordinates: " + one + ". 3D coordinates: " + finalCoordinateStr + additionalStr;
+			char* outputArray = (char*)outputStr.c_str();
+			if ((num2 = write(fifo2, outputArray, strlen(outputArray) + 1)) < 0) {
 				printf("ERROR: %s\n", strerror(errno));
 			}
 
-			if (currLoc.x == -1 || currLoc.y == -1 || currLoc.z == -1) {
+			if (finalCoordinate.x == -1 || finalCoordinate.y == -1 || finalCoordinate.z == -1) {
 				printf("Coordinate processing failed\n");
-				//return 0;
 			}
-
-			else { printf("\nCoordinate processed succeeded. Continuing...\n"); }
 
 			i = 1;
 		}

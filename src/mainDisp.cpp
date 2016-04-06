@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -62,8 +63,8 @@ int main(int argc, char** argv) {
 	}
 
 	// creating the window
-	char window[] = "Display Window";
-	Mat display_image = Mat::zeros(WIDTH, HEIGHT, CV_8UC3);
+	//char window[] = "Display Window";
+	//Mat display_image = Mat::zeros(WIDTH, HEIGHT, CV_8UC3);
 
 	while (true) {
 
@@ -71,21 +72,23 @@ int main(int argc, char** argv) {
 			printf("%s\n", strerror(errno));
 		}
 
-		printf("In FIFO2 is %s \n", temp);
-		string str(temp);
-		Point pt = delimiter(str);
-		printf("Delimited to %d %d\n", pt.x, pt.y);
+		printf("%s\n", temp);
 
-		if (pt.x == -1 || pt.y == -1) {
-			drawCircle(display_image, previous, 0, 0, 255);
-		}
-		else {
-			previous = pt;
-			drawCircle(display_image, pt, 0, 255, 0);
-		}
+		//string str(temp);
+		//Point pt = delimiter(str);
+		//printf("%d %d\n", pt.x, pt.y);
 
-		imshow(window, display_image);
-		waitKey(2);
+		//if (pt.x == -1 || pt.y == -1) {
+			//drawCircle(display_image, previous, 0, 0, 255);
+		//}
+		//else {
+		//	previous = pt;
+			//drawCircle(display_image, pt, 0, 255, 0);
+		//}
+
+		//imshow(window, display_image);
+		//waitKey(2);
 
 	}
+
 }
